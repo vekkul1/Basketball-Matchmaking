@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    Basketball Matchmaking
+</head>
+
+<body>
+  {% if session.username %}
+  <p>
+    User {{ session.username }} Created
+  </p>
+  <p>
+    <a href = "/">Back to the main page</a>
+  </p>
+  {% else %}
+  <p>
+    {{ message }}
+  </p>
+  <p>
+    <a href = "/register"> Back to Sign-up</a>
+  </p>
+  {% endif %}
+</body>
+
+</html>
