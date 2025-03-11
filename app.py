@@ -12,9 +12,9 @@ app.secret_key = config.secret_key
 def index():
     return render_template("index.html")
 
-@app.route("/register")
-def register():
-    return render_template("register.html")
+@app.route("/signup")
+def signup():
+    return render_template("signup.html", message="")
 
 @app.route("/create", methods = ["POST"])
 def create():
@@ -23,7 +23,7 @@ def create():
     password2 = request.form["password2"]
 
     if not password1 == password2:
-        return render_template("created.html", message = "ERROR: Passwords do not match!")
+        return render_template("signup.html", message = "ERROR: Passwords do not match!")
     
     password_hash = generate_password_hash(password1)
     
@@ -34,10 +34,10 @@ def create():
               """
         db.execute(sql, [username, password_hash])
     except sqlite3.IntegrityError:
-        return render_template("created.html", message = "ERROR: USER ALREADY EXISTS!")
+        return render_template("signup.html", message = "ERROR: USER ALREADY EXISTS!")
     
     session["username"] = username
-    return render_template("created.html")
+    return redirect("/")
 
 @app.route("/login", methods=["POST"])
 def login():
