@@ -10,14 +10,18 @@
   <p>
     Welcome!
   </p>
-  {% if session.username %}
+  
+  {% if session.user_id %}
   <p>
-    Olet kirjautunut nimellä {{ session.username }}
+    <a href="/signup">Sign-up here</a>
   </p>
   <p>
     <a href="/logout">Kirjaudu ulos</a>
   </p>
   {% else %}
+  <p>
+    {{ message }}
+  </p>
   <form action="/login" method="post">
     <p>
       Tunnus: <br />
@@ -33,6 +37,54 @@
     <a href="/signup">Sign-up here</a>
   </p>
   {% endif %}
+
+  <hr />
+  {% for event in allEvents %}
+  <p>
+    <a href="/event/{{ event.id }}">  {{ event.time }} {{ event.name }} </a>
+    <br />
+    {{ event.size }} v {{ event.size }} created by {{ event.username }}
+  </p>
+  <hr />
+  {% endfor %}
+
+  {% if session.user_id %}
+  <h2>Create New Event</h2>
+  
+  <form action="/new_event" method="post">
+    <p>
+      Location: <br />
+      <select name="location_id" id="location_id">
+        <option value=""></option>
+        {% for location in locations %}
+        <option value="{{ location.id }}">{{ location.name }}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p>
+      Team size: <br />
+      <select name = "team_size" id = "team_size">
+        <option value=""></option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </p>
+    <p>
+      date: <br />
+      <input type = "date" name = "date" />
+    </p>
+    <p>
+      time: <br />
+      <input type = "time" name = "time"
+    </p>
+    
+    <br />
+    <input type="submit" value="Create Event" />
+  </form>
+  {% endif %}
+  
 </body>
 
 </html>

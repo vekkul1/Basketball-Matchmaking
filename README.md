@@ -5,4 +5,5 @@ Primary function is to create an event and secondary function is to register to 
 TODO:
  - Make Events.
  - Make signup to events possible.
+ - Css
  - ...
