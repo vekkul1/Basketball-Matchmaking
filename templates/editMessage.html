@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+
+<form action="/edit/message/{{ message.id }}" method="post">
+    <p>
+        Message: <br />
+        <textarea name="content" rows="5" cols="40">{{ message.content }}</textarea>
+    </p>
+    <input type="hidden" name="event_id" value="{{ message.event_id }}" />
+    <input type="submit" value="Submit" />  
+</form>
+
+</html>

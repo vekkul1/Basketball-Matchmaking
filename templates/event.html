@@ -2,19 +2,54 @@
 <html>
 
 <head>
-    <title>{{ event.id }}</title>
+    <title>
+        {{ event.id }}
+    </title>
 </head>
 
 <body>
     <h1>
-        {{ event.size }} v {{ event.size }} at {{ event.name }}
+        <a href="/">{{ event.date }}, {{ event.name }} at {{ event.time }}</a>
     </h1>
     <h2>
-        {{ event.date }} at {{ event.time }}
+        {{ event.address }}
     </h2>
+    {% if event.user_id == session.user_id %}
     <p>
-        address {{ event.address }}
+        <a href="/edit/{{ event.id }}">Edit</a>
+        <a href="/remove/{{ event.id}}">Remove</a>
     </p>
+    {% else %}
+    <p>
+        event created by {{ event.username }}
+    </p>
+    {% endif %}
+
+    <form action="/new_message" method="post">
+        <p>
+            New Message: <br />
+            <textarea name="content" rows="5" cols="40"></textarea>
+        </p>
+        <input type="hidden" name="event_id" value="{{ event.id }}" />
+        <input type="submit" value="Send" />
+    </form>
+    <hr />
+
+    {% for message in messages %}
+    <p>
+        {{ message.username }} ({{ message.send_time }}):
+    </p>
+    <p>
+        {{ message.content }}
+    </p>
+    {% if message.user_id == session.user_id %}
+    <p>
+        <a href="/edit/message/{{ message.id }}">Edit</a>
+        <a href="/remove/message/{{ message.id}}">Remove</a>
+    </p>
+    {% endif %}
+    <hr />
+    {% endfor %}
 
     <p>
         <a href="/">Front Page</a>

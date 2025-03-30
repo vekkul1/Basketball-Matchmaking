@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+  <h1>Edit Event:</h1>
+
+  <h2>
+    <a href="/event/{{ event.id }}">{{ event.date }} {{ event.name }} at {{ event.time }}</a><br />
+    {{ event.address }}
+  </h2>
+
+  <form action="/edit/{{ event.id }}" method="post">
+    <p>
+      Location: <br />
+      <select name="location_id" id="location_id">
+        {% for location in locations %}
+        {% if location.name == event.name %}
+        <option value="{{ location.id }}" selected>{{ location.name }}</option>
+        {% else %}
+        <option value="{{ location.id }}">{{ location.name }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </p>
+    <p>
+      Team size: <br />
+      <select name = "team_size" id = "team_size">
+        {% for i in range(1,11) %}
+        {% if i == event.size %}
+        <option value="{{ i }}" selected>{{ i }}</option>
+        {% else %}
+        <option value="{{ i }}">{{ i }}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </p>
+    <p>
+      date: <br />
+      <input type = "date" name = "date" value="{{ event.date }}"/>
+    </p>
+    <p>
+      time: <br />
+      <input type = "time" name = "time" value="{{ event.time }}" />
+    </p>
+    
+    <br />
+    <input type="submit" value="Submit Changes" />
+  </form>
+  
+
+</body>
+
+</html>
