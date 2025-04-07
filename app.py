@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from time import time
@@ -8,9 +8,14 @@ import db
 import events
 import courts
 import config
+import users
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
+
+def require_login():
+    if "user_id" not in session:
+        abort(403)
 
 @app.route("/")
 def index():
@@ -18,53 +23,42 @@ def index():
     locations = courts.get_courts()
     return render_template("index.html", allEvents = allEvents, locations = locations)
 
-@app.route("/signup")
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
-    return render_template("signup.html", message="")
-
-@app.route("/create", methods = ["POST"])
-def create():
-    username = request.form["username"]
-    password1 = request.form["password1"]
-    password2 = request.form["password2"]
-
-    if not password1 == password2:
-        return render_template("signup.html", message = "ERROR: Passwords do not match!")
+    if request.method == "GET":
+        return render_template("signup.html", message="")
     
-    password_hash = generate_password_hash(password1)
-    
-    try:
-        sql = """
-                INSERT INTO users (username, password_hash)
-                VALUES (?, ?)
-              """
-        db.execute(sql, [username, password_hash])
-    except sqlite3.IntegrityError:
-        return render_template("signup.html", message = "ERROR: USER ALREADY EXISTS!")
-    
-    session["user_id"] = db.last_insert_id()
-    return redirect("/")
+    if request.method == "POST":
+        username = request.form["username"]
+        password1 = request.form["password1"]
+        password2 = request.form["password2"]
 
-@app.route("/login", methods=["POST"])
-def login():
-    username = request.form["username"]
-    password = request.form["password"]
+        if not password1 == password2:
+            return render_template("signup.html", message = "ERROR: Passwords do not match!")
+        
+        try:
+            users.create_user(password1, username)
+        except sqlite3.IntegrityError:
+            return render_template("signup.html", message = "ERROR: User already exists!")
 
-    sql = """
-        SELECT id, password_hash
-        FROM users
-        WHERE username = ?
-    """
-    try:
-        user_id, password_hash = db.query(sql, [username])[0]
-    except:
-        return render_template("index.html", message="ERROR: wrong username or password")
-
-    if check_password_hash(password_hash, password):
-        session["user_id"] = user_id
+        session["user_id"] = db.last_insert_id()
         return redirect("/")
-    else:
-        return render_template("index.html", message="ERROR: wrong username or password")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user_id = users.check_login(password, username)
+
+        if user_id:
+            session["user_id"] = user_id
+            return redirect("/")
+        else:
+            return render_template("login.html", message="ERROR: wrong username or password")
     
 @app.route("/logout")
 def logout():
@@ -133,12 +127,11 @@ def edit_message(message_id):
         content = request.form["content"]
         event_id = request.form["event_id"]
         events.update_message(message_id, content)
-        redirect(f"/event/{messagep["event_id"]}")
+        redirect(f"/event/{event_id}")
 
 @app.route("/search_date", methods=["POST"])
 def search_date():
     date = request.form["datesort"]
-    
-
-
-
+    allEvents = events.get_events_by_date(date)
+    print(allEvents)
+    return redirect("/")

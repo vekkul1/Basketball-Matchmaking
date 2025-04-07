@@ -20,7 +20,7 @@ def courts_events(court_id, date):
              ORDER BY e.date"""
     return db.query(sql, [court_id, date])
 
-def date_events(date):
+def get_events_by_date(date):
     sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
             FROM events e, locations l, users u
              WHERE e.location_id = l.id
@@ -84,5 +84,3 @@ def update_message(message_id, content):
             SET content = ?
              WHERE id = ?"""
     db.execute(sql, [content, message_id])
-
-print(get_message(1))
