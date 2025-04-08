@@ -10,31 +10,19 @@
   <p>
     Welcome!
   </p>
-  
+
+  <p>
   {% if session.user_id %}
-  <p>
-    <a href="/logout">Sign-out</a>
-  </p>
+    <a href="/logout">Sign-out</a><br />
   {% else %}
-  <p>
-    <a href="/signup">Sign-up here</a>
-  </p>
-  <p>
-    <a href="/login">Log-in</a>
-  </p>
+    <a href="/signup">Sign-up</a><br />
+    <a href="/login">Log-in</a><br />
   {% endif %}
+    <a href="/search">Search</a>
+  </p>
   <hr />
-
-  <form action="/search_date" method="post">
-    <p>
-      search for date:<br />
-      <input type="date" name="datesort" />
-    </p>
-    <input type="submit" value="Sort" />
-  </form>
-
+  <hr2>Upcoming events:</hr2>
   <hr />
-  <hr2>Upcoming events</hr2>
   {% for event in allEvents %}
   <p>
     <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
@@ -43,6 +31,7 @@
   </p>
   <hr />
   {% endfor %}
+
 
   {% if session.user_id %}
   <h2>Create New Event</h2>

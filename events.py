@@ -1,16 +1,18 @@
+from datetime import date
 import db
 
-def get_events(date):
+def get_events(date, limit = 5):
     sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
             FROM events e, locations l, users u
              WHERE e.location_id = l.id
             AND e.user_id = u.id
              AND e.date > ?
             GROUP BY e.id
-             ORDER BY e.date"""
-    return db.query(sql, [date])
+             ORDER BY e.date, e.time
+            LIMIT ?"""
+    return db.query(sql, [date, limit])
 
-def courts_events(court_id, date):
+def courts_events(court_id, date): # currently not in  use
     sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
             FROM events e, locations l, users u
              WHERE e.location_id = ?
@@ -20,15 +22,32 @@ def courts_events(court_id, date):
              ORDER BY e.date"""
     return db.query(sql, [court_id, date])
 
-def get_events_by_date(date):
-    sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
-            FROM events e, locations l, users u
-             WHERE e.location_id = l.id
-            AND e.user_id = u.id
-             AND e.date = ?
-            GROUP BY e.id
-             ORDER BY e.date"""
-    return db.query(sql, [date])
+def get_events_by_date(dateArg, time, court_id):
+    if not time:
+        time = "00:00"
+    if not dateArg:
+        dateArg = date.today()
+    if court_id != 0:
+        sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
+                FROM events e, locations l, users u
+                 WHERE e.location_id = l.id
+                AND e.user_id = u.id
+                 AND e.date >= ?
+                AND e.time >= ?
+                 AND e.location_id = ?
+                GROUP BY e.id
+                 ORDER BY e.date, e.time ASC"""
+        return db.query(sql, [dateArg, time, court_id])
+    else:
+        sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
+                FROM events e, locations l, users u
+                 WHERE e.location_id = l.id
+                AND e.user_id = u.id
+                 AND e.date >= ?
+                AND e.time >= ?
+                 GROUP BY e.id
+                ORDER BY e.date, e.time ASC"""
+        return db.query(sql, [dateArg, time])
     
 
 def get_event(event_id):
@@ -75,9 +94,9 @@ def get_messages(event_id):
 def get_message(message_id):
     sql = """SELECT m.id, m.content, m.send_time, m.user_id, u.username, m.event_id
             FROM messages m, users u
-             WHERE m.id = 1
+             WHERE m.id = ?
             AND u.id = m.user_id"""
-    return db.query(sql, [message_id])
+    return db.query(sql, [message_id])[0]
 
 def update_message(message_id, content):
     sql = """UPDATE messages

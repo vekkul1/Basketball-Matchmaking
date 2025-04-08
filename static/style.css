@@ -1,0 +1,9 @@
+.container {
+    display: grid;
+    grid-template-columns: min-content min-content min-content;
+}
+
+.container > p {
+    padding: 1em;
+    margin: 0;
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="static\style.css">
+</head>
+
+<body>
+    <h1>
+        <a href="/">Search</a>
+    </h1>
+    <hr/>
+    <form action="/search" method="get">
+        <div class="container">
+            <p>
+                date:<br />
+                {% if date %}
+                <input type="date" name="date" value = "{{ date }}"/>
+                {% else %}
+                <input type="date" name="date" />
+                {% endif %}
+            </p>
+            <p>
+                time:<br />
+                {% if time %}
+                <input type="time" name="time" value="{{ time }}"/>
+                {% else %}
+                <input type="time" name="time" />
+                {% endif %}
+            </p>
+            <p>
+                location:<br />
+                <select name="court_id" id="court_id">
+                    <option value=0></option>
+                    {% for location in locations %}
+                    {% if court_id == location.id %}
+                    <option value="{{ location.id }}" selected>{{ location.name }}</option>
+                    {% else %}
+                    <option value="{{ location.id }}">{{ location.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </p>
+        </div>
+        <input type="submit" value="Sort" />
+    </form>
+
+    {% if date or time or court_id %}
+    <hr />
+    <h2>Results:</h2>
+    <ul>
+        {% for event in results %}
+        <li>
+            <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
+            <br />
+            looking for {{ event.size }} people at {{ event.time }}. created by {{ event.username }}
+        </li>
+        <hr />
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+
+</html>

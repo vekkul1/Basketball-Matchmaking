@@ -1,8 +1,6 @@
 from flask import Flask
 from flask import abort, redirect, render_template, request, session
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
-from time import time
 import sqlite3
 import db
 import events
@@ -127,11 +125,15 @@ def edit_message(message_id):
         content = request.form["content"]
         event_id = request.form["event_id"]
         events.update_message(message_id, content)
-        redirect(f"/event/{event_id}")
+        return redirect(f"/event/{event_id}")
 
-@app.route("/search_date", methods=["POST"])
-def search_date():
-    date = request.form["datesort"]
-    allEvents = events.get_events_by_date(date)
-    print(allEvents)
-    return redirect("/")
+@app.route("/search")
+def search():
+    locations = courts.get_courts()
+    date = request.args.get("date")
+    time = request.args.get("time")
+    court_id = request.args.get("court_id")
+    if not court_id:
+        court_id = 0
+    results = events.get_events_by_date(date, time, court_id)
+    return render_template("search.html", locations=locations, date=date, time=time, court_id=int(court_id), results=results)
