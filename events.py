@@ -1,16 +1,18 @@
 from datetime import date
 import db
 
-def get_events(date, limit = 5):
+def get_events(date, page, page_size):
     sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
             FROM events e, locations l, users u
              WHERE e.location_id = l.id
             AND e.user_id = u.id
-             AND e.date > ?
+             AND e.date >= ?
             GROUP BY e.id
              ORDER BY e.date, e.time
-            LIMIT ?"""
-    return db.query(sql, [date, limit])
+            LIMIT ? OFFSET ?"""
+    limit = page_size
+    offset = page_size * (page-1)
+    return db.query(sql, [date, limit, offset])
 
 def courts_events(court_id, date): # currently not in  use
     sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
@@ -27,12 +29,12 @@ def get_events_by_date(dateArg, time, court_id):
         time = "00:00"
     if not dateArg:
         dateArg = date.today()
-    if court_id != 0:
+    if court_id > 0:
         sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
                 FROM events e, locations l, users u
                  WHERE e.location_id = l.id
                 AND e.user_id = u.id
-                 AND e.date >= ?
+                 AND e.date = ?
                 AND e.time >= ?
                  AND e.location_id = ?
                 GROUP BY e.id
@@ -43,7 +45,7 @@ def get_events_by_date(dateArg, time, court_id):
                 FROM events e, locations l, users u
                  WHERE e.location_id = l.id
                 AND e.user_id = u.id
-                 AND e.date >= ?
+                 AND e.date = ?
                 AND e.time >= ?
                  GROUP BY e.id
                 ORDER BY e.date, e.time ASC"""
@@ -103,3 +105,14 @@ def update_message(message_id, content):
             SET content = ?
              WHERE id = ?"""
     db.execute(sql, [content, message_id])
+
+def event_count():
+    sql = """SELECT COUNT(*)
+            FROM events"""
+    return db.query(sql)[0][0]
+
+def upcoming_event_count(date):
+    sql = """SELECT COUNT(*)
+            FROM events
+             WHERE date >= ?"""
+    return db.query(sql, [date])[0][0]

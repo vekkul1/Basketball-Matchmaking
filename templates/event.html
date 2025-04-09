@@ -31,6 +31,7 @@
             <textarea name="content" rows="5" cols="40"></textarea>
         </p>
         <input type="hidden" name="event_id" value="{{ event.id }}" />
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
         <input type="submit" value="Send" />
     </form>
     <hr />

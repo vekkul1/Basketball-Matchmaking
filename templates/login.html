@@ -17,6 +17,7 @@
           Salasana: <br />
           <input type="password" name="password" />
         </p>
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
         <input type="submit" value="Kirjaudu" />
     </form>
     <p>

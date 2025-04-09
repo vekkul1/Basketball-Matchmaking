@@ -7,6 +7,8 @@ import events
 import courts
 import config
 import users
+import math
+import secrets
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -15,11 +17,25 @@ def require_login():
     if "user_id" not in session:
         abort(403)
 
+def check_csrf():
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+
 @app.route("/")
-def index():
-    allEvents = events.get_events(date.today())
+@app.route("/<int:page>")
+def index(page = 1):
+    page_size = 5
+    event_count = events.upcoming_event_count(date.today())
+    page_count = max(math.ceil(event_count/page_size), 1)
+    
+    if page < 1:
+        return redirect("/1")
+    if page > page_count:
+        return redirect(f"/{page_count}")
+    
+    allEvents = events.get_events(date.today(), page, page_size)
     locations = courts.get_courts()
-    return render_template("index.html", allEvents = allEvents, locations = locations)
+    return render_template("index.html", page = page, page_count = page_count , allEvents = allEvents, locations = locations)
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -27,6 +43,7 @@ def signup():
         return render_template("signup.html", message="")
     
     if request.method == "POST":
+        check_csrf()
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
@@ -39,7 +56,6 @@ def signup():
         except sqlite3.IntegrityError:
             return render_template("signup.html", message = "ERROR: User already exists!")
 
-        session["user_id"] = db.last_insert_id()
         return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -47,6 +63,7 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     if request.method == "POST":
+        check_csrf()
         username = request.form["username"]
         password = request.form["password"]
 
@@ -54,6 +71,8 @@ def login():
 
         if user_id:
             session["user_id"] = user_id
+            session["username"] = username
+            session["csrf_token"] = secrets.token_hex(16)
             return redirect("/")
         else:
             return render_template("login.html", message="ERROR: wrong username or password")
@@ -61,6 +80,8 @@ def login():
 @app.route("/logout")
 def logout():
     del session["user_id"]
+    del session["username"]
+    del session["csrf_token"]
     return redirect("/")
 
 @app.route("/event/<int:event_id>")
@@ -73,6 +94,9 @@ def show_event(event_id):
 #, method=["POST"]
 @app.route("/new_event", methods=["POST"])
 def new_event():
+    check_csrf()
+    require_login()
+
     location_id = request.form["location_id"]
     team_size = request.form["team_size"]
     dateform = request.form["date"]
@@ -86,11 +110,13 @@ def new_event():
 
 @app.route("/remove/<int:event_id>")
 def remove_event(event_id):
+    require_login()
     events.remove_event(event_id)
     return redirect("/")
 
 @app.route("/edit/<int:event_id>", methods=["GET", "POST"])
 def edit_event(event_id):
+    require_login()
     event = events.get_event(event_id)
     locations = courts.get_courts()
    
@@ -98,6 +124,7 @@ def edit_event(event_id):
         return render_template("editEvent.html", event = event, locations = locations)
     
     if request.method == "POST":
+        check_csrf()
         date = request.form["date"]
         time = request.form["time"]
         location = request.form["location_id"]
@@ -107,6 +134,8 @@ def edit_event(event_id):
     
 @app.route("/new_message", methods = ["POST"])
 def new_message():
+    check_csrf()
+    require_login()
     content = request.form["content"]
     user_id = session["user_id"]
     event_id = request.form["event_id"]
@@ -116,12 +145,14 @@ def new_message():
 
 @app.route("/edit/message/<int:message_id>", methods=["GET", "POST"])
 def edit_message(message_id):
+    require_login()
     messagep = events.get_message(message_id)
 
     if request.method == "GET":
         return render_template("editMessage.html", message = messagep)
     
     if request.method == "POST":
+        check_csrf()
         content = request.form["content"]
         event_id = request.form["event_id"]
         events.update_message(message_id, content)
@@ -135,5 +166,6 @@ def search():
     court_id = request.args.get("court_id")
     if not court_id:
         court_id = 0
-    results = events.get_events_by_date(date, time, court_id)
+
+    results = events.get_events_by_date(date, time, int(court_id))
     return render_template("search.html", locations=locations, date=date, time=time, court_id=int(court_id), results=results)
