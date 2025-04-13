@@ -1,14 +1,13 @@
-from flask import Flask
-from flask import abort, redirect, render_template, request, session
-from datetime import date
+import math
+import secrets
 import sqlite3
-import db
+from flask import Flask
+from flask import abort, redirect, render_template, request, session, flash
+from datetime import date
 import events
 import courts
 import config
 import users
-import math
-import secrets
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -40,7 +39,7 @@ def index(page = 1):
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "GET":
-        return render_template("signup.html", message="")
+        return render_template("signup.html")
     
     if request.method == "POST":
         check_csrf()
@@ -49,12 +48,14 @@ def signup():
         password2 = request.form["password2"]
 
         if not password1 == password2:
-            return render_template("signup.html", message = "ERROR: Passwords do not match!")
+            flash("ERROR: Passwords do not match!")
+            return redirect("/singup")
         
         try:
             users.create_user(password1, username)
         except sqlite3.IntegrityError:
-            return render_template("signup.html", message = "ERROR: User already exists!")
+            flash("ERROR: User already exists!")
+            return redirect("/signup")
 
         return redirect("/")
 
@@ -63,7 +64,6 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     if request.method == "POST":
-        check_csrf()
         username = request.form["username"]
         password = request.form["password"]
 
@@ -75,7 +75,8 @@ def login():
             session["csrf_token"] = secrets.token_hex(16)
             return redirect("/")
         else:
-            return render_template("login.html", message="ERROR: wrong username or password")
+            flash("ERROR: wrong username or password")
+            return redirect("/login")
     
 @app.route("/logout")
 def logout():
@@ -169,3 +170,12 @@ def search():
 
     results = events.get_events_by_date(date, time, int(court_id))
     return render_template("search.html", locations=locations, date=date, time=time, court_id=int(court_id), results=results)
+
+@app.route("/user/<int:user_id>")
+def show_user(user_id):
+    user = users.get_user(user_id)
+    if not user:
+        abort(404)
+    usersAllEvents = users.get_events(user_id)
+    usersUpcomingEvents = users.get_latest_events(user_id)
+    return render_template("user.html", user=user, events=usersAllEvents, upcoming=usersUpcomingEvents)

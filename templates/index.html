@@ -8,7 +8,10 @@
 <body>
   <h1>Frontpage</h1>
   <p>
-    Welcome!
+    Welcome! 
+    {% if session.username %}
+    Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+    {% endif %} 
   </p>
 
   <p>
@@ -28,7 +31,7 @@
   <p>
     <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
     <br />
-    looking for {{ event.size }} people at {{ event.time }}. created by {{ event.username }}
+    looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
   </p>
   <hr />
   {% endfor %}

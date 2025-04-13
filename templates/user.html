@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {{ user.username }}
+</head>
+
+<body>
+    <h1><a href="/">User {{ user.username }}</a></h1>
+    <p>
+        {{ events | count }} event{% if events | count > 1 %}s 
+        {% endif%} posted
+    </p>
+    
+    {% if events %}
+    <p>
+        First Event held on {{ events[-1].date }}
+    </p>
+    {% endif %}
+
+    {% if upcoming %}
+    <hr />
+    <p>
+        {% if upcoming | count > 1 %}
+        {{ upcoming | count }} Upcoming  events:
+        {% else %}
+        Upcoming event:
+        {% endif %}
+    </p>
+    <hr />    
+    {% for event in upcoming %}
+    <p>
+        <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
+        <br />
+        looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
+    </p>
+    <hr />
+    {% endfor %}
+
+    {% endif %}
+</body>
+
+</html>

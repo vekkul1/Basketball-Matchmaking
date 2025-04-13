@@ -21,7 +21,7 @@
     </p>
     {% else %}
     <p>
-        event created by {{ event.username }}
+        event created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
     </p>
     {% endif %}
 

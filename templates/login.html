@@ -5,9 +5,11 @@
 </head>
 
 <body>
+    {% for message in get_flashed_messages() %}
     <p>
-        {{ message }}
+        <b>{{ message }}</b>
     </p>
+    {% endfor %}
     <form action="/login" method="post">
         <p>
           Tunnus: <br />

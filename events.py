@@ -2,7 +2,7 @@ from datetime import date
 import db
 
 def get_events(date, page, page_size):
-    sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
+    sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username, e.user_id
             FROM events e, locations l, users u
              WHERE e.location_id = l.id
             AND e.user_id = u.id
