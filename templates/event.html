@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="/static/style.css">
     <title>
         {{ event.id }}
     </title>
@@ -9,10 +10,12 @@
 
 <body>
     <h1>
-        <a href="/">{{ event.date }}, {{ event.name }} at {{ event.time }}</a>
+        <a href="/">{{ event.date }}</a>
     </h1>
     <h2>
-        {{ event.address }}
+        Time:       {{ event.time }}<br/>
+        Court:      {{ event.name }}<br/>
+        Address:    {{ event.address }}
     </h2>
     {% if event.user_id == session.user_id %}
     <p>

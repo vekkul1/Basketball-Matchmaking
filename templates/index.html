@@ -2,29 +2,39 @@
 <html>
 
 <head>
+  <link rel="stylesheet" href="/static/style.css">
   Basketball Matchmaking
 </head>
 
 <body>
-  <h1>Frontpage</h1>
-  <p>
-    Welcome! 
-    {% if session.username %}
-    Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
-    {% endif %} 
-  </p>
+  <div class="header">
+    <h1>Frontpage</h1>
+    <p>
+      Welcome!
+      {% if session.username %}
+        Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+      {% endif %}
+      <br />
+      {% for message in get_flashed_messages() %}
+        <b>{{ message }}</b>
+      {% endfor %}
+    </p>
+  </div>
 
-  <p>
-  {% if session.user_id %}
-    <a href="/logout">Sign-out</a><br />
-  {% else %}
-    <a href="/signup">Sign-up</a><br />
-    <a href="/login">Log-in</a><br />
-  {% endif %}
-    <a href="/search">Search</a>
-  </p>
-  <hr />
+  <div class="nav">
+    <p>
+    {% if session.user_id %}
+      <a href="/logout">Sign-out</a><br />
+    {% else %}
+      <a href="/signup">Sign-up</a><br />
+      <a href="/login">Log-in</a><br />
+    {% endif %}
+      <a href="/search">Search</a>
+    </p>
+    <hr />
+  </div>
 
+  <div class="events">
   <hr2>Upcoming events:</hr2>
   <hr />
   {% for event in allEvents %}
@@ -44,43 +54,46 @@
     <a href="/{{ page + 1 }}">&gt;&gt;</a>
     {% endif %}
   </p>
+  </div>
 
+  <div class="new-event">
   {% if session.user_id %}
-  <h2>Create New Event</h2>
-  
-  <form action="/new_event" method="post">
-    <p>
-      Location: <br />
-      <select name="location_id" id="location_id">
-        <option value=""></option>
-        {% for location in locations %}
-        <option value="{{ location.id }}">{{ location.name }}</option>
-        {% endfor %}
-      </select>
-    </p>
-    <p>
-      Team size: <br />
-      <select name = "team_size" id = "team_size">
-        <option value=""></option>
-        {% for i in range(1,11) %}
-        <option value="{{ i }}">{{ i }}</option>
-        {% endfor %}
-      </select>
-    </p>
-    <p>
-      date: <br />
-      <input type = "date" name = "date" />
-    </p>
-    <p>
-      time: <br />
-      <input type = "time" name = "time" />
-    </p>
+    <h2>Create New Event</h2>
     
-    <br />
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-    <input type="submit" value="Create Event" />
-  </form>
+    <form action="/new_event" method="post">
+      <p>
+        Location: <br />
+        <select name="location_id" id="location_id">
+          <option value=""></option>
+          {% for location in locations %}
+          <option value="{{ location.id }}">{{ location.name }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        Team size: <br />
+        <select name = "team_size" id = "team_size">
+          <option value=""></option>
+          {% for i in range(1,11) %}
+          <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+      </p>
+      <p>
+        date: <br />
+        <input type = "date" name = "date" />
+      </p>
+      <p>
+        time: <br />
+        <input type = "time" name = "time" />
+      </p>
+      
+      <br />
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+      <input type="submit" value="Create Event" />
+    </form>
   {% endif %}
+  </div>  
   
 </body>
 

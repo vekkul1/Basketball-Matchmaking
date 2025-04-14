@@ -57,6 +57,7 @@ def signup():
             flash("ERROR: User already exists!")
             return redirect("/signup")
 
+        flash("User Created Succesfully")
         return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -83,6 +84,7 @@ def logout():
     del session["user_id"]
     del session["username"]
     del session["csrf_token"]
+    flash("Logged out")
     return redirect("/")
 
 @app.route("/event/<int:event_id>")
@@ -107,6 +109,7 @@ def new_event():
         return "The event you're trying to create is in the past."
 
     events.add_event(team_size, timeform, dateform, session["user_id"], location_id)
+    flash(f"New event created on {dateform} at {timeform}")
     return redirect("/")
 
 @app.route("/remove/<int:event_id>")

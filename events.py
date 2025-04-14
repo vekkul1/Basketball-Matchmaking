@@ -29,6 +29,7 @@ def get_events_by_date(dateArg, time, court_id):
         time = "00:00"
     if not dateArg:
         dateArg = date.today()
+        print("default date set")
     if court_id > 0:
         sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
                 FROM events e, locations l, users u
