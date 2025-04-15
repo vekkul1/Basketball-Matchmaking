@@ -3,12 +3,11 @@
 
 <head>
   <link rel="stylesheet" href="/static/style.css">
-  Basketball Matchmaking
 </head>
 
 <body>
   <div class="header">
-    <h1>Frontpage</h1>
+    <h1>Basketball Matchmaking</h1>
     <p>
       Welcome!
       {% if session.username %}
@@ -22,28 +21,30 @@
   </div>
 
   <div class="nav">
-    <p>
-    {% if session.user_id %}
-      <a href="/logout">Sign-out</a><br />
-    {% else %}
-      <a href="/signup">Sign-up</a><br />
-      <a href="/login">Log-in</a><br />
-    {% endif %}
-      <a href="/search">Search</a>
-    </p>
-    <hr />
+    <nav>
+      <ul>
+        <li><a href="/">Front Page</a></li>
+        <li><a href="/search">Search</a></li>
+      {% if session.user_id %}
+        <li><a href="/logout">Sign-out</a></li>
+      {% else %}
+        <li><a href="/signup">Sign-up</a></li>
+        <li><a href="/login">Log-in</a></li>
+      {% endif %}
+      </ul>
+    </nav>
   </div>
 
-  <div class="events">
-  <hr2>Upcoming events:</hr2>
-  <hr />
+  <div class="content">
+    <h2>Upcoming events:</h2>
   {% for event in allEvents %}
-  <p>
-    <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
-    <br />
-    looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
-  </p>
-  <hr />
+  <div class="events">
+    <p>
+      <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
+      <br />
+      looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
+    </p>
+  </div>
   {% endfor %}
   <p>
     {% if page > 1 %}
@@ -92,6 +93,12 @@
       <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
       <input type="submit" value="Create Event" />
     </form>
+  {% else %}
+  <p>
+    You need to be logged in to create an event!<br />
+    <a href="/login">Log-in</a> or
+    <a href="/signup">Sign-up</a> 
+  </p>
   {% endif %}
   </div>  
   

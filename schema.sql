@@ -25,4 +25,10 @@ CREATE TABLE messages (
     send_time TEXT,
     user_id INTEGER REFRENCES users,
     event_id INTEGER REFRENCES events
-)
+);
+
+CREATE TABLE signups (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER REFRENCES users,
+    event_id INTEGER REFRENCES events
+);

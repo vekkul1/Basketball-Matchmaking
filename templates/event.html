@@ -9,25 +9,53 @@
 </head>
 
 <body>
-    <h1>
-        <a href="/">{{ event.date }}</a>
-    </h1>
-    <h2>
-        Time:       {{ event.time }}<br/>
-        Court:      {{ event.name }}<br/>
-        Address:    {{ event.address }}
-    </h2>
+    <div class="header">
+        <h1>{{ event.name }}</h1>
+        <p>
+        {% if session.username %}
+            Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+        {% else %}
+            Log in to make messages and events, <a href="/login">Log-in</a> or
+            <a href="/signup">Sign-up</a> 
+        {% endif %}
+        <br />
+        {% for message in get_flashed_messages() %}
+          <b>{{ message }}</b>
+        {% endfor %}
+        </p>
+      </div>
+
+    <div class="nav">
+        <nav>
+          <ul>
+            <li><a href="/">Front Page</a></li>
+            <li><a href="/search">Search</a></li>
+          {% if session.user_id %}
+            <li><a href="/logout">Sign-out</a></li>
+          {% else %}
+            <li><a href="/signup">Sign-up</a></li>
+            <li><a href="/login">Log-in</a></li>
+          {% endif %}
+          </ul>
+        </nav>
+    </div>
+    <div class="content">
+    
+    <ul>
+        <li>When: {{ event.date }}</li>
+        <li>Time: {{ event.time }}</li>
+        <li>Where: {{ event.address }}</li>
+        <li>Created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a></li>
+    </ul>
     {% if event.user_id == session.user_id %}
     <p>
         <a href="/edit/{{ event.id }}">Edit</a>
         <a href="/remove/{{ event.id}}">Remove</a>
     </p>
-    {% else %}
-    <p>
-        event created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
-    </p>
     {% endif %}
 
+    {% if session.user_id %}
+    <div class="message">
     <form action="/new_message" method="post">
         <p>
             New Message: <br />
@@ -37,9 +65,11 @@
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
         <input type="submit" value="Send" />
     </form>
-    <hr />
+    </div>
+    {% endif %}
 
     {% for message in messages %}
+    <div class="message">
     <p>
         {{ message.username }} ({{ message.send_time }}):
     </p>
@@ -51,13 +81,10 @@
         <a href="/edit/message/{{ message.id }}">Edit</a>
         <a href="/remove/message/{{ message.id}}">Remove</a>
     </p>
+    </div>
     {% endif %}
-    <hr />
     {% endfor %}
-
-    <p>
-        <a href="/">Front Page</a>
-    </p>
+    </div>
 </body>
 
 </html>

@@ -117,3 +117,6 @@ def upcoming_event_count(date):
             FROM events
              WHERE date >= ?"""
     return db.query(sql, [date])[0][0]
+
+def signup_to_event(user_id, event_id):
+    return user_id, event_id

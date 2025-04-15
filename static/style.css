@@ -5,8 +5,66 @@ body {
     background-color: aliceblue;
 }
 
+nav {
+    text-align: center;
+}
+
+nav > ul {
+    padding: 0;
+    margin: 0;
+}
+
+nav > ul > li {
+    display: inline-block;
+    padding: 0 1em;
+    margin: 0;
+}
+
+nav > ul > li:not(:last-of-type) {
+    border-right: 1px solid black;    
+}
+
+nav > ul > li:not(:first-of-type) {
+    margin-left: -0.25em;
+}
+
 .header {
     background-color: #a7c7e3;
+}
+
+.nav {
+    background-color: #a7a7a771;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.content {
+    background-color: #fff;
+    padding-top: 1em;
+}
+
+.content > ul > li {
+    padding-bottom: 0.5em;
+}
+
+.events {
+    border: 0.2em solid black;
+    margin: 1em;
+    padding: 0.2em 0.5em;
+}
+
+.message {
+    border: 0.1em solid black;
+    margin: 0.5em;
+    padding: 0.1 0.25em;
+}
+
+.message > form {
+    padding-left: 0.5em;
+}
+
+.message > p {
+    padding-left: 0.5em;
 }
 
 .container {
