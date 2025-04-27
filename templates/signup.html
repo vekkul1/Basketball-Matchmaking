@@ -2,15 +2,30 @@
 <html>
 
 <head>
-    <title>Sign-up</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-    {% for message in get_flashed_messages() %}
-    <p>
-        <b>{{ message }}</b>
-    </p>
-    {% endfor %}
+    <div class="header">
+        <h1>Sign-up</h1>
+        {% for message in get_flashed_messages() %}
+        <p>
+            <b>{{ message }}</b>
+        </p>
+        {% endfor %}
+    </div>
+
+    <div class="nav">
+        <nav>
+          <ul>
+            <li><a href="/">Front Page</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="/login">Log-in</a></li>
+          </ul>
+        </nav>
+    </div>
+
+    <div class="login">
     <form action="/signup" method="post">
         <p>
             Username: <br />
@@ -26,10 +41,9 @@
         </p>
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
         <input type ="submit" value="Create User" />
-    </form> 
-    <p>
-        <a href="/">Front Page</a>
-    </p>   
+    </form>  
+    </div> 
+
 </body>
 
 </html>

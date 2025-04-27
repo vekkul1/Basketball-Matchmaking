@@ -12,7 +12,7 @@
     <div class="header">
         <h1>{{ event.name }}</h1>
         <p>
-        {% if session.username %}
+        {% if session.username and session.user_id %}
             Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
         {% else %}
             Log in to make messages and events, <a href="/login">Log-in</a> or
@@ -53,7 +53,42 @@
         <a href="/remove/{{ event.id}}">Remove</a>
     </p>
     {% endif %}
+    <hr/>
+    <div class="signups">
+        {% if session.user_id %}
+        <form action="/event/{{ event.id }}" method="POST">
+            <input type="hidden" name="user_id" value="{{ session.user_id }}" />
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+        {% if signedIn %}
+            <input type="hidden" name="actions" value="out" />
+            <input type="submit" value="I'm not going!" />
+        {% else %}
+            <input type="hidden" name="actions" value="in" />
+            <input type="submit" value="Sign-up to Event!" />
+        {% endif %}
+        </form>
+        {% endif %}
 
+        {% if signups %}
+        <p>
+            People coming to the event:
+        </p>
+        <ul>
+        {% for user in signups %}
+            <li><a href="/user/{{ user.user_id }}">{{ user.username }}</a></li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p>
+            No one has signed-up to the event.
+        </p>
+        {% endif %}
+    </div>
+    
+    </div>
+    
+    {% if session.user_id or messages %}
+    <div class="content">
     {% if session.user_id %}
     <div class="message">
     <form action="/new_message" method="post">
@@ -81,10 +116,11 @@
         <a href="/edit/message/{{ message.id }}">Edit</a>
         <a href="/remove/message/{{ message.id}}">Remove</a>
     </p>
-    </div>
     {% endif %}
+    </div>
     {% endfor %}
     </div>
+    {% endif %}
 </body>
 
 </html>

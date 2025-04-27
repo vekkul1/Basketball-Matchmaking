@@ -119,4 +119,20 @@ def upcoming_event_count(date):
     return db.query(sql, [date])[0][0]
 
 def signup_to_event(user_id, event_id):
-    return user_id, event_id
+    sql = """INSERT INTO signups (user_id, event_id)
+            VALUES (?, ?)"""
+    db.execute(sql, [user_id, event_id])
+
+def delete_singup_to_event(user_id, event_id):
+    sql = """DELETE FROM signups
+            WHERE user_id = ?
+             AND event_id = ?"""
+    db.execute(sql, [user_id, event_id])
+
+def get_signups(event_id):
+    sql = """SELECT s.user_id, u.username
+            FROM users u, signups s
+             WHERE u.id = s.user_id
+            AND s.event_id = ?
+             GROUP BY s.id"""
+    return db.query(sql, [event_id])

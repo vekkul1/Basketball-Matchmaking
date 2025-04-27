@@ -87,14 +87,32 @@ def logout():
     flash("Logged out")
     return redirect("/")
 
-@app.route("/event/<int:event_id>")
+@app.route("/event/<int:event_id>", methods = ["GET", "POST"])
 def show_event(event_id):
-    event = events.get_event(event_id)
-    messages = events.get_messages(event_id)
+    if request.method == "GET":
+        event = events.get_event(event_id)
+        messages = events.get_messages(event_id)
+        signups = events.get_signups(event_id)
+        signedIn = False
 
-    return render_template("event.html", event = event, messages = messages)
+        if "user_id" in session:
+            for i in signups:
+                if i[0] == session["user_id"]:
+                    signedIn = True
 
-#, method=["POST"]
+        return render_template("event.html", event = event, messages = messages, signups = signups, signedIn = signedIn)
+    
+    if request.method == "POST":
+        check_csrf()
+        user_id = request.form["user_id"]
+
+        if request.form["actions"] == "in":
+            events.signup_to_event(user_id, event_id)
+        if request.form["actions"] == "out":
+            events.delete_singup_to_event(user_id, event_id)
+
+        return redirect(f"/event/{event_id}")
+
 @app.route("/new_event", methods=["POST"])
 def new_event():
     check_csrf()
@@ -182,3 +200,10 @@ def show_user(user_id):
     usersAllEvents = users.get_events(user_id)
     usersUpcomingEvents = users.get_latest_events(user_id)
     return render_template("user.html", user=user, events=usersAllEvents, upcoming=usersUpcomingEvents)
+
+@app.route("/event/<int:event_id>/sing-up")
+def event_signup(event_id):
+    check_csrf()
+    user_id = request.form["user_id"]
+    events.signup_to_event(user_id, event_id)
+    return redirect(f"/event/{event_id}")

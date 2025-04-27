@@ -40,7 +40,7 @@ nav > ul > li:not(:first-of-type) {
 
 .content {
     background-color: #fff;
-    padding-top: 1em;
+    padding: 1em;
 }
 
 .content > ul > li {
@@ -75,4 +75,13 @@ nav > ul > li:not(:first-of-type) {
 .container > p {
     padding: 1em;
     margin: 0;
+}
+
+.login {
+    background-color: #fff;
+    text-align: center;
+}
+
+.login input {
+    width: 16em;
 }
