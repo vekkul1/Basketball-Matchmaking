@@ -2,42 +2,86 @@
 <html>
 
 <head>
-    {{ user.username }}
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-    <h1><a href="/">User {{ user.username }}</a></h1>
-    <p>
-        {{ events | count }} event{% if events | count > 1 %}s 
-        {% endif%} posted
-    </p>
+    <div class="header">
+        <h1>User {{ user.username }}</h1>
+        <p>
+          {% if session.username %}
+            Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+          {% endif %}
+          <br />
+          {% for message in get_flashed_messages() %}
+            <b>{{ message }}</b>
+          {% endfor %}
+        </p>
+    </div>
     
-    {% if events %}
-    <p>
-        First Event held on {{ events[-1].date }}
-    </p>
-    {% endif %}
+    <div class="nav">
+        <nav>
+          <ul>
+            <li><a href="/">Front Page</a></li>
+            <li><a href="/search">Search</a></li>
+          {% if session.user_id %}
+            <li><a href="/logout">Sign-out</a></li>
+          {% else %}
+            <li><a href="/signup">Sign-up</a></li>
+            <li><a href="/login">Log-in</a></li>
+          {% endif %}
+          </ul>
+        </nav>
+    </div>
 
-    {% if upcoming %}
-    <hr />
-    <p>
-        {% if upcoming | count > 1 %}
-        {{ upcoming | count }} Upcoming  events:
-        {% else %}
-        Upcoming event:
+    <div class="user-page">
+        {% if user.has_image %}
+        <img src="/image/{{ user.id }}" class="profile-picture"/>
         {% endif %}
-    </p>
-    <hr />    
-    {% for event in upcoming %}
-    <p>
-        <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
-        <br />
-        looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
-    </p>
-    <hr />
-    {% endfor %}
 
-    {% endif %}
+        {% if user.id == session.user_id %}
+        <p><a href="/add_image">Set profile picture</a></p>
+        {% endif %}
+
+        <p>
+            {{ events | count }} event{% if events | count > 1 %}s 
+            {% endif%} posted
+        </p>
+        
+        {% if events %}
+        <p>
+            First Event held on {{ events[-1].date }}
+        </p>
+        {% endif %}
+
+        {% if upcoming %}
+        <hr />
+        <p>
+            {% if upcoming | count > 1 %}
+            {{ upcoming | count }} Upcoming  events:
+            {% else %}
+            Upcoming event:
+            {% endif %}
+        </p>
+        {% for event in upcoming %}
+        <div class="events">
+        <p>
+            <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
+            <br />
+            looking for {{ event.size }} people at {{ event.time }}. created by <a href="/user/{{ event.user_id }}">{{ event.username }}</a>
+        </p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>
+
+            No upcoming events.
+        </p>
+
+        {% endif %}
+    </div>
+    
+
 </body>
 
 </html>

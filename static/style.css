@@ -85,3 +85,18 @@ nav > ul > li:not(:first-of-type) {
 .login input {
     width: 16em;
 }
+
+.user-page {
+    background-color: #fff;
+    padding: 1em;
+}
+
+.user-page > .events {
+    margin-left: 0em;
+    margin-right: 0em;
+}
+
+.profile-picture {
+    max-height: 10em;
+    max-width: 10em;
+}

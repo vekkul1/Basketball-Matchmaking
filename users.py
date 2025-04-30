@@ -21,7 +21,7 @@ def check_login(password, username):
     return None
 
 def get_user(user_id):
-    sql = """SELECT username
+    sql = """SELECT id, username, image IS NOT NULL has_image 
             FROM users
              WHERE id = ?"""
     query = db.query(sql, [user_id])
@@ -46,3 +46,15 @@ def get_latest_events(user_id, date = date.today(), limit = 5):
             ORDER BY e.date, e.time
              LIMIT ?"""
     return db.query(sql, [user_id, date, limit])
+
+def update_image(user_id, image):
+    sql = """UPDATE users
+            SET image = ?
+             WHERE id = ?"""
+    db.execute(sql, [image, user_id])
+
+def get_image(user_id):
+    sql = """SELECT image
+            FROM users
+             WHERE id = ?"""
+    return db.query(sql, [user_id])[0][0]

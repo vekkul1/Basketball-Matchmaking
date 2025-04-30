@@ -6,30 +6,55 @@
 </head>
 
 <body>
-    <h1>
-        <a href="/">Search</a>
-    </h1>
-    <hr/>
+    <div class="header">
+        <h1>Search</h1>
+        <p>
+          {% if session.username %}
+            Logged in as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+          {% endif %}
+          <br />
+          {% for message in get_flashed_messages() %}
+            <b>{{ message }}</b>
+          {% endfor %}
+        </p>
+      </div>
+    
+      <div class="nav">
+        <nav>
+          <ul>
+            <li><a href="/">Front Page</a></li>
+            <li><a href="/search">Search</a></li>
+          {% if session.user_id %}
+            <li><a href="/logout">Sign-out</a></li>
+          {% else %}
+            <li><a href="/signup">Sign-up</a></li>
+            <li><a href="/login">Log-in</a></li>
+          {% endif %}
+          </ul>
+        </nav>
+      </div>
+
+    <div class="content">
     <form action="/search" method="get">
         <div class="container">
             <p>
-                date:<br />
-                {% if date %}
-                <input type="date" name="date" value = "{{ date }}"/>
+                Starting date:<br />
+                {% if start_date %}
+                <input type="date" name="start_date" value = "{{ start_date }}"/>
                 {% else %}
-                <input type="date" name="date" />
+                <input type="date" name="start_date" />
                 {% endif %}
             </p>
             <p>
-                time:<br />
-                {% if time %}
-                <input type="time" name="time" value="{{ time }}"/>
+                End date:<br />
+                {% if end_date %}
+                <input type="date" name="end_date" value = "{{ end_date }}"/>
                 {% else %}
-                <input type="time" name="time" />
+                <input type="date" name="end_date" />
                 {% endif %}
             </p>
             <p>
-                location:<br />
+                Location:<br />
                 <select name="court_id" id="court_id">
                     <option value=0></option>
                     {% for location in locations %}
@@ -42,23 +67,23 @@
                 </select>
             </p>
         </div>
-        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
         <input type="submit" value="Sort" />
     </form>
+    </div>
 
-    {% if date or time or court_id %}
-    <hr />
+    {% if start_date or end_time or court_id %}
+    <div class="content">
     <h2>Results:</h2>
-    <ul>
         {% for event in results %}
-        <li>
+        <div class="events">
+        <p>
             <a href="/event/{{ event.id }}">  {{ event.date }}, {{ event.name }} </a>
             <br />
             looking for {{ event.size }} people at {{ event.time }}. created by {{ event.username }}
-        </li>
-        <hr />
+        </p>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
     {% endif %}
 </body>
 

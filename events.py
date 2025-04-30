@@ -24,33 +24,28 @@ def courts_events(court_id, date): # currently not in  use
              ORDER BY e.date"""
     return db.query(sql, [court_id, date])
 
-def get_events_by_date(dateArg, time, court_id):
-    if not time:
-        time = "00:00"
-    if not dateArg:
-        dateArg = date.today()
-        print("default date set")
+def get_events_by_date(startDate, endDate, court_id):
     if court_id > 0:
         sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
                 FROM events e, locations l, users u
                  WHERE e.location_id = l.id
                 AND e.user_id = u.id
-                 AND e.date = ?
-                AND e.time >= ?
+                 AND e.date >= ?
+                AND e.date <= ?
                  AND e.location_id = ?
                 GROUP BY e.id
                  ORDER BY e.date, e.time ASC"""
-        return db.query(sql, [dateArg, time, court_id])
+        return db.query(sql, [startDate, endDate, court_id])
     else:
         sql = """SELECT e.id, l.name, e.size, e.time, e.date, u.username
                 FROM events e, locations l, users u
                  WHERE e.location_id = l.id
                 AND e.user_id = u.id
-                 AND e.date = ?
-                AND e.time >= ?
+                 AND e.date >= ?
+                AND e.date <= ?
                  GROUP BY e.id
                 ORDER BY e.date, e.time ASC"""
-        return db.query(sql, [dateArg, time])
+        return db.query(sql, [startDate, endDate])
     
 
 def get_event(event_id):

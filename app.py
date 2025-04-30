@@ -2,7 +2,7 @@ import math
 import secrets
 import sqlite3
 from flask import Flask
-from flask import abort, redirect, render_template, request, session, flash
+from flask import abort, redirect, render_template, request, session, flash, make_response
 from datetime import date
 import events
 import courts
@@ -42,7 +42,6 @@ def signup():
         return render_template("signup.html")
     
     if request.method == "POST":
-        check_csrf()
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
@@ -63,10 +62,11 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", next_page=request.referrer)
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        next_page = request.form["next_page"]
 
         user_id = users.check_login(password, username)
 
@@ -74,7 +74,7 @@ def login():
             session["user_id"] = user_id
             session["username"] = username
             session["csrf_token"] = secrets.token_hex(16)
-            return redirect("/")
+            return redirect(next_page)
         else:
             flash("ERROR: wrong username or password")
             return redirect("/login")
@@ -103,6 +103,7 @@ def show_event(event_id):
         return render_template("event.html", event = event, messages = messages, signups = signups, signedIn = signedIn)
     
     if request.method == "POST":
+        require_login()
         check_csrf()
         user_id = request.form["user_id"]
 
@@ -115,8 +116,8 @@ def show_event(event_id):
 
 @app.route("/new_event", methods=["POST"])
 def new_event():
-    check_csrf()
     require_login()
+    check_csrf()
 
     location_id = request.form["location_id"]
     team_size = request.form["team_size"]
@@ -124,7 +125,8 @@ def new_event():
     timeform = request.form["time"]
 
     if dateform < str(date.today()):
-        return "The event you're trying to create is in the past."
+        flash("The event you're trying to create is in the past.")
+        return redirect("/")
 
     events.add_event(team_size, timeform, dateform, session["user_id"], location_id)
     flash(f"New event created on {dateform} at {timeform}")
@@ -156,8 +158,8 @@ def edit_event(event_id):
     
 @app.route("/new_message", methods = ["POST"])
 def new_message():
-    check_csrf()
     require_login()
+    check_csrf()
     content = request.form["content"]
     user_id = session["user_id"]
     event_id = request.form["event_id"]
@@ -183,14 +185,14 @@ def edit_message(message_id):
 @app.route("/search")
 def search():
     locations = courts.get_courts()
-    date = request.args.get("date")
-    time = request.args.get("time")
+    startDate = request.args.get("start_date")
+    endDate = request.args.get("end_date")
     court_id = request.args.get("court_id")
     if not court_id:
         court_id = 0
 
-    results = events.get_events_by_date(date, time, int(court_id))
-    return render_template("search.html", locations=locations, date=date, time=time, court_id=int(court_id), results=results)
+    results = events.get_events_by_date(startDate, endDate, int(court_id))
+    return render_template("search.html", locations=locations, start_date=startDate, end_date=endDate, court_id=int(court_id), results=results)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
@@ -201,9 +203,36 @@ def show_user(user_id):
     usersUpcomingEvents = users.get_latest_events(user_id)
     return render_template("user.html", user=user, events=usersAllEvents, upcoming=usersUpcomingEvents)
 
-@app.route("/event/<int:event_id>/sing-up")
-def event_signup(event_id):
-    check_csrf()
-    user_id = request.form["user_id"]
-    events.signup_to_event(user_id, event_id)
-    return redirect(f"/event/{event_id}")
+@app.route("/add_image", methods=["GET", "POST"])
+def add_image():
+    require_login()
+
+    if request.method == "GET":
+        return render_template("addImage.html")
+    
+    if request.method == "POST":
+        check_csrf()
+        file = request.files["image"]
+        if not file.filename.lower().endswith(".jpg"):
+            flash("ERROR: Wrong file format")
+            return redirect("/add_image")
+        
+        image = file.read()
+        if len(image) > 100*1024:
+            flash("ERROR: image too large")
+            return redirect("/add_image")
+        
+        user_id = session["user_id"]
+        users.update_image(user_id, image)
+        flash("Profile picture added succesfully")
+        return redirect(f"/user/{user_id}")
+    
+@app.route("/image/<int:user_id>")
+def show_image(user_id):
+    image = users.get_image(user_id)
+    if not image:
+        abort(404)
+
+    response = make_response(bytes(image))
+    response.headers.set("Content-Type", "image/jpeg")
+    return response

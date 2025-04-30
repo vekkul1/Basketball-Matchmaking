@@ -1,7 +1,8 @@
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE,
-    password_hash TEXT
+    password_hash TEXT,
+    image BLOB
 );
 
 CREATE TABLE locations ( 
@@ -32,3 +33,6 @@ CREATE TABLE signups (
     user_id INTEGER REFRENCES users,
     event_id INTEGER REFRENCES events
 );
+
+CREATE INDEX idx_event_messages ON messages (event_id);
+CREATE INDEX idx_event_signups ON signups (event_id);
